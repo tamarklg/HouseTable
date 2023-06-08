@@ -25,7 +25,7 @@ export const HouseList = ({
                     <div>Address: {house.address}</div>
                     <div>Value: {house.currentValue}</div>
                     <div>Loan amout: {house.loanAmount}</div>
-                    <div>Risk: {house.risk}</div>
+                    <div>Risk: {(house.risk)?.toFixed(2)}</div>
                 </div>
             )
         )}

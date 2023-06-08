@@ -34,7 +34,10 @@ class HouseCtrl {
 
     static async create(ctx) {
         try {
-            const data = ctx.request.body;
+            const body = ctx.request.body;
+            const risk = calculateRisk(body);
+            const data = { ...body, risk };
+
             const house = await House.create(data);
       
             ctx.body = house;
@@ -50,7 +53,9 @@ class HouseCtrl {
     static async update(ctx) {
         try {
             const houseId = ctx.params.id;
-            const { id, ...data } = ctx.request.body;
+            const { id, ...body } = ctx.request.body;
+            const risk = calculateRisk(body);
+            const data = { ...body, risk };
 
             const query = { where: { id: houseId }, returning: true };
 
@@ -68,3 +73,14 @@ class HouseCtrl {
 }
 
 module.exports = HouseCtrl;
+
+const calculateRisk = ({ currentValue, loanAmount }) => {
+    const risk = loanAmount / currentValue;
+
+    if (risk <= 0.5) {
+        return risk;
+    }
+
+    const moreRisk = risk + 0.1;
+    return moreRisk > 1 ? 1 : moreRisk;
+}
