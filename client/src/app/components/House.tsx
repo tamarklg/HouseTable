@@ -19,9 +19,9 @@ export const HouseManager = () => {
     const [houseToUpsert, setHouseToUpsert] = React.useState(emptyHouse);
 
     React.useEffect(() => {
-        axios.get(baseURL).then(response => {
-            setHouses(response.data.data);
-        });  
+        axios.get(baseURL)
+        .then(response => setHouses(response.data.data))
+        .catch(err => console.error(err));
     }, []);
 
     const addHouse = () => {
@@ -30,11 +30,15 @@ export const HouseManager = () => {
     }
 
     const editHouse = async (id: number) => {
-        const res = await axios.get(`${baseURL}/${id}`);
-        const house = res.data.data;
+        try {
+            const res = await axios.get(`${baseURL}/${id}`);
+            const house = res.data.data;
 
-        setShouldUpsertHouse(true);
-        setHouseToUpsert(house);
+            setShouldUpsertHouse(true);
+            setHouseToUpsert(house);
+        } catch (err) {
+            console.error(err);
+        }
     }
 
     const cancel = () => {
@@ -43,24 +47,32 @@ export const HouseManager = () => {
 
     const upsertHouse = async (houseData: House): Promise<void> => {
         if (!houseData.id) {
-            const res = await axios.post(baseURL, houseData);
-            const house = res.data.data;
+            try {
+                const res = await axios.post(baseURL, houseData);
+                const house = res.data.data;
 
-            setHouses(houses => ([
-                ...houses,
-                house
-            ]));
+                setHouses(houses => ([
+                    ...houses,
+                    house
+                ]));
+            } catch (err) {
+                console.error(err);
+            }
         } else {
-            const res = await axios.put(`${baseURL}/${houseData.id}`, houseData);
-            const house = res.data.data[1][0];
+            try {
+                const res = await axios.put(`${baseURL}/${houseData.id}`, houseData);
+                const house = res.data.data[1][0];
 
-            const index = houses.findIndex(house => house.id === houseData.id);
+                const index = houses.findIndex(house => house.id === houseData.id);
 
-            setHouses(houses => ([
-                ...houses.slice(0, index),
-                house,
-                ...houses.slice(index + 1)
-            ]));
+                setHouses(houses => ([
+                    ...houses.slice(0, index),
+                    house,
+                    ...houses.slice(index + 1)
+                ]));
+            } catch (err) {
+                console.error(err);
+            }
         }
 
         setShouldUpsertHouse(false);
